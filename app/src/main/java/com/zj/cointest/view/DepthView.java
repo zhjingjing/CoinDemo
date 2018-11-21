@@ -78,7 +78,7 @@ public class DepthView  extends View{
 
 
 
-            abscissaColor=typedArray.getColor(R.styleable.DepthView_dvAbscissaColor,0xff2BB8AB);
+            abscissaColor=typedArray.getColor(R.styleable.DepthView_dvAbscissaColor,0xff24256e);
             abscissaTextSize=typedArray.getInteger(R.styleable.DepthView_dvAbscissaTextSize,12);
             ordinateColor=typedArray.getColor(R.styleable.DepthView_dvOrdinateColor,0xff2BB8AB);
             ordinateTextSize=typedArray.getInteger(R.styleable.DepthView_dvAbscissaTextSize,12);
@@ -149,7 +149,7 @@ public class DepthView  extends View{
 
     private String leftPriceStr;
     private String rightPriceStr;
-    private int priceScale=8;
+    private int priceScale=4;
     private int volumeScale=4;
     //x轴
     double avgWidthPerSize;
@@ -159,9 +159,9 @@ public class DepthView  extends View{
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        leftStart=getPaddingLeft()+1;
+        leftStart=getPaddingLeft()+10;
         rightEnd=getMeasuredWidth()-getPaddingRight()-1;
-        topStart=getPaddingTop()+1;
+        topStart=getPaddingTop()+20;
         bottomEnd=getMeasuredHeight() - getPaddingBottom() - 1;
 
 
@@ -178,8 +178,8 @@ public class DepthView  extends View{
         }
 
         if (!sellList.isEmpty()){
-            maxSellVolume=sellList.get(0).getVolume();
-            minSellVolume=sellList.get(sellList.size()-1).getVolume();
+            maxSellVolume=sellList.get(sellList.size()-1).getVolume();
+            minSellVolume=sellList.get(0).getVolume();
 
         }else{
             maxSellVolume=minSellVolume=0;
@@ -206,7 +206,7 @@ public class DepthView  extends View{
 
         strokePaint.getTextBounds(leftPriceStr,0,leftPriceStr.length(),textRect);
         //深度图除文字外的高度，
-        depthImgHeight = bottomEnd - topStart - textRect.height() - 8;
+        depthImgHeight = bottomEnd - topStart - textRect.height() - 18;
 
         avgHeightPerVolume= depthImgHeight / (maxVolume - minVolume);
         avgWidthPerSize= (rightEnd - leftStart) / (buyList.size() + sellList.size());
@@ -226,7 +226,31 @@ public class DepthView  extends View{
             return;
         }
 
+        drawDepthTitle(canvas);
         drawLineAndBg(canvas);
+        drawCoordinate(canvas);
+    }
+
+    //深度图标题
+    public void drawDepthTitle(Canvas canvas){
+        fillPaint.setColor(buyBgColor);
+        canvas.drawRect(getMeasuredWidth()/2-65,topStart,getMeasuredWidth()/2-35,topStart+30,fillPaint);
+
+        strokePaint.setColor(buyBgColor);
+        strokePaint.setTextSize(30);
+        strokePaint.setStrokeWidth(1);
+        //x,y左下角位置
+        canvas.drawText("买",getMeasuredWidth()/2-30,topStart+25,strokePaint);
+
+
+        fillPaint.setColor(sellBgColor);
+        canvas.drawRect(getMeasuredWidth()/2+20,topStart,getMeasuredWidth()/2+50,topStart+30,fillPaint);
+
+        strokePaint.setColor(sellBgColor);
+        strokePaint.setTextSize(30);
+        strokePaint.setStrokeWidth(1);
+        //x,y左下角位置
+        canvas.drawText("卖",getMeasuredWidth()/2+55,topStart+25,strokePaint);
     }
 
 
@@ -282,7 +306,7 @@ public class DepthView  extends View{
                 }
             }
 
-            bgPath.lineTo(rightEnd, (float) (topStart + depthImgHeight));
+            bgPath.lineTo(leftStart + (float) avgWidthPerSize * (buyList.size()+sellList.size()-1), (float) (topStart + depthImgHeight));
             if (!sellList.isEmpty() && topStart + (float) ((maxVolume - sellList.get(0).getVolume()) * avgHeightPerVolume)< (float) (topStart + depthImgHeight)) {
                 bgPath.lineTo(leftStart + (float) avgWidthPerSize * (buyList.size()), (float) (topStart + depthImgHeight));
             }
@@ -296,6 +320,45 @@ public class DepthView  extends View{
             strokePaint.setTextSize(20);
             strokePaint.setStrokeWidth(4);
             canvas.drawPath(linePath,strokePaint);
+        }
+
+    }
+
+    //坐标轴，横纵坐标的值
+    public void drawCoordinate(Canvas canvas){
+
+        //横坐标
+        strokePaint.setStrokeWidth(1);
+        strokePaint.setColor(abscissaColor);
+        strokePaint.setTextSize(20);
+
+        strokePaint.getTextBounds(rightPriceStr,0,rightPriceStr.length(),textRect);
+        canvas.drawText(leftPriceStr,leftStart+2,bottomEnd-5,strokePaint);
+        canvas.drawText(rightPriceStr,rightEnd-textRect.width(),bottomEnd-5,strokePaint);
+
+
+        double centerPrice=0;
+        if (!buyList.isEmpty()&&!buyList.isEmpty()){
+            centerPrice= (buyList.get(buyList.size()-1).getPrice()+sellList.get(0).getPrice())/2;
+        }else if (!buyList.isEmpty()){
+            centerPrice=buyList.get(buyList.size()-1).getPrice();
+        }else if (!sellList.isEmpty()){
+            centerPrice=sellList.get(buyList.size()-1).getPrice();
+        }
+
+        canvas.drawText(setPrecision(centerPrice,priceScale),getMeasuredWidth()/2-30,bottomEnd-5,strokePaint);
+
+
+        //纵坐标
+        strokePaint.setStrokeWidth(0);
+        strokePaint.setColor(ordinateColor);
+        strokePaint.setTextSize(20);
+
+        strokePaint.getTextBounds(maxVolume+"",0,(maxVolume+"").length(),textRect);
+
+        for (int i=0;i<ordinateNum;i++){
+            String text=setPrecision(maxVolume-avgVolumeSpace*(i),volumeScale);
+            canvas.drawText(text,leftStart+2,(float) (topStart+textRect.height()+i*avgOrdinateSpace),strokePaint);
         }
 
     }

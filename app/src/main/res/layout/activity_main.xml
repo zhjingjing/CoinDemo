@@ -26,10 +26,18 @@
             android:background="#F4F4F4"
             android:onClick="@{()->presenter.onTradeListClick()}"
             />
-        <com.zj.cointest.view.DepthView
+
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/depth_view"
+            android:layout_height="wrap_content"
+            android:text="深度图"
+            android:layout_marginTop="5dp"
+            android:textColor="#24256e"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:background="#F4F4F4"
+            android:onClick="@{()->presenter.onDepthViewClick()}"
             />
     </LinearLayout>
 </layout>

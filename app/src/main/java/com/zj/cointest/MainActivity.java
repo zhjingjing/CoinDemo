@@ -19,8 +19,6 @@ public class MainActivity extends AppCompatActivity {
         binding= DataBindingUtil. setContentView(this,R.layout.activity_main);
         binding.setPresenter(this);
 
-        binding.depthView.setData(getBuyDepthList(),getSellDepthList());
-
     }
 
 
@@ -31,25 +29,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //模拟深度数据
-    private List<DepthBean> getBuyDepthList(){
-        List<DepthBean> depthList = new ArrayList<>();
-        Random random = new Random();
-        for (int i = 0; i < 40; i++) {
-            depthList.add(new DepthBean(100 - random.nextDouble() * 10,
-                    random.nextInt(10) * random.nextInt(10) * random.nextInt(10) + random.nextDouble(), 0,"BTC"));
-        }
-        return depthList;
+    //深度图
+    public void onDepthViewClick(){
+        DepthActivity.launchActivity(this);
     }
 
-    //模拟深度数据
-    private List<DepthBean> getSellDepthList(){
-        List<DepthBean> depthList = new ArrayList<>();
-        Random random = new Random();
-        for (int i = 0; i < 40; i++) {
-            depthList.add(new DepthBean(100 + random.nextDouble() * 10,
-                    random.nextInt(10) * random.nextInt(10) * random.nextInt(10) + random.nextDouble(), 1,"BTC"));
-        }
-        return depthList;
-    }
 }

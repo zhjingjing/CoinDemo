@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+        <variable
+            name="presenter"
+            type="com.zj.cointest.DepthActivity"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+
+        >
+        <!--android:background="#663F51B5"-->
+        <com.zj.cointest.view.DepthView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+
+            android:id="@+id/depth_view"
+            />
+
+    </LinearLayout>
+</layout>
