@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DepthView">
+
+        <!--买方 -->
+        <attr name="dvBuyLineColor" format="color"/>
+        <attr name="dvBuyBGColor" format="color"/>
+        <attr name="dvBuyLineStrokeWidth" format="integer"/>
+
+        <!--卖方 -->
+        <attr name="dvSellLineColor" format="color"/>
+        <attr name="dvSellBGColor" format="color"/>
+        <attr name="dvSellLineStrokeWidth" format="integer"/>
+
+        <!--横坐标 -->
+        <attr name="dvAbscissaColor" format="color"/>
+        <attr name="dvAbscissaTextSize" format="integer"/>
+
+        <!--纵坐标 -->
+        <attr name="dvOrdinateColor" format="color"/>
+        <attr name="dvOrdinateTextSize" format="integer"/>
+        <attr name="dvOrdinateNum" format="integer"/>
+
+
+        <attr name="dvInfoBgColor" format="color"/>
+        <attr name="dvInfoTextSize" format="integer"/>
+        <attr name="dvInfoTextColor" format="color"/>
+        <attr name="dvInfoLineCol" format="color"/>
+        <!--游标线宽度、交界圆点半径、价格文字说明、数量文字说明-->
+        <attr name="dvInfoLineWidth" format="float" />
+        <attr name="dvInfoPointRadius" format="integer"/>
+        <attr name="dvInfoPriceTitle" format="string"/>
+        <attr name="dvInfoVolumeTitle" format="string"/>
+
+
+
+    </declare-styleable>
+
+
+</resources>
