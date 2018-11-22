@@ -8,7 +8,10 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+
 import com.zj.cointest.R;
 import com.zj.cointest.bean.DepthBean;
 import java.math.BigDecimal;
@@ -51,6 +54,7 @@ public class DepthView  extends View{
             ordinateTextSize,ordinateNum,infoBgCol,infoTextCol,infoTextSize,infoLineCol,infoLineWidth,
             infoPointRadius;
     private String infoPriceTitle,infoVolumeTitle;
+    private int moveLimitDistance;
 
     public DepthView(Context context) {
         this(context,null);
@@ -97,7 +101,7 @@ public class DepthView  extends View{
         }
         buyList=new ArrayList<>();
         sellList=new ArrayList<>();
-
+        moveLimitDistance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         strokePaint = new Paint();
         strokePaint.setAntiAlias(true);
         strokePaint.setStyle(Paint.Style.STROKE);
@@ -229,6 +233,7 @@ public class DepthView  extends View{
         drawDepthTitle(canvas);
         drawLineAndBg(canvas);
         drawCoordinate(canvas);
+        drawDetailsInfo(canvas);
     }
 
     //深度图标题
@@ -360,9 +365,107 @@ public class DepthView  extends View{
             String text=setPrecision(maxVolume-avgVolumeSpace*(i),volumeScale);
             canvas.drawText(text,leftStart+2,(float) (topStart+textRect.height()+i*avgOrdinateSpace),strokePaint);
         }
-
     }
 
+    //绘制详情信息
+    public void drawDetailsInfo(Canvas canvas){
+        if (isShowinfos&&clickBean!=null){
+            //准线
+            strokePaint.setStrokeWidth(1);
+            strokePaint.setTextSize(20);
+            strokePaint.setColor(sellLineColor);
+
+            canvas.drawLine(clickDownX,topStart,clickDownX+2,bottomEnd,strokePaint);
+
+
+            String priceStr="   价格："+setPrecision(clickBean.getPrice(),priceScale);
+            String volume  ="累计交易量："+setPrecision(clickBean.getVolume(),volumeScale);
+            strokePaint.setStrokeWidth(1);
+            strokePaint.setTextSize(20);
+            strokePaint.setColor(infoTextCol);
+
+            strokePaint.getTextBounds(priceStr,0,priceStr.length(),textRect);
+            float priceStrWidth=textRect.width();
+            float priceStrHeight=textRect.height();
+
+            strokePaint.getTextBounds(volume,0,priceStr.length(),textRect);
+            float volumeStrWidth=textRect.width();
+            float volumeStrHeight=textRect.height();
+
+
+
+
+        }
+    }
+
+
+    private DepthBean clickBean;
+
+    //获取点击位置的bean
+    public void  getClickBean(float xValue){
+        clickBean=null;
+
+        if (sellList.isEmpty()){
+            for (int i=0;i<buyList.size();i++){
+                if (i+1<buyList.size()&&xValue>=(leftStart + (float) avgWidthPerSize * i)&&xValue<(leftStart + (float) avgWidthPerSize * (i+1))){
+                    clickBean=buyList.get(i);
+                    break;
+                }else if (i==buyList.size()-1&&xValue>= (leftStart + (float) avgWidthPerSize * i)){
+                    clickBean=buyList.get(i);
+                    break;
+                }
+            }
+        }else if (xValue<(leftStart + (float) avgWidthPerSize * buyList.size())){
+            for (int i=0;i<buyList.size();i++){
+                if (i+1<buyList.size()&&xValue>=(leftStart + (float) avgWidthPerSize * i)&&xValue<(leftStart + (float) avgWidthPerSize * (i+1))){
+                    clickBean=buyList.get(i);
+                    break;
+                }else if (i==buyList.size()-1&&xValue>= (leftStart + (float) avgWidthPerSize * i)&&xValue<(leftStart + (float) avgWidthPerSize * (i+1))){
+                    clickBean=buyList.get(i);
+                    break;
+                }
+            }
+        }else{
+            for (int i=0;i<sellList.size();i++){
+                if (i+1<sellList.size()&&xValue>=(leftStart + (float) avgWidthPerSize * (buyList.size()+i))&&xValue<(leftStart + (float) avgWidthPerSize * (buyList.size()+i))){
+                    clickBean=buyList.get(i);
+                    break;
+                }else if (i==buyList.size()-1&&xValue>= (leftStart + (float) avgWidthPerSize * buyList.size()+i)){
+                    clickBean=buyList.get(i);
+                    break;
+                }
+            }
+
+        }
+    }
+
+
+    private float clickDownX;
+    private float clickDownY;
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                clickDownX=event.getX();
+                clickDownY=event.getY();
+
+                break;
+
+            case MotionEvent.ACTION_UP:
+                float diffX=Math.abs(event.getX()-clickDownX);
+                float diffY=Math.abs(event.getY()-clickDownY);
+
+                if (diffX<moveLimitDistance&&diffY<moveLimitDistance){
+                    isShowinfos=true;
+                    getClickBean(clickDownX);
+                    if (clickBean!=null){
+                        invalidate();
+                    }
+                }
+                break;
+        }
+        return true;
+    }
 
     /**
      * 设置小数位精度
