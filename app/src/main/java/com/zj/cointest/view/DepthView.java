@@ -89,8 +89,9 @@ public class DepthView  extends View{
             ordinateNum=typedArray.getInteger(R.styleable.DepthView_dvOrdinateNum,10);
 
 
-            infoBgCol = typedArray.getColor(R.styleable.DepthView_dvInfoBgColor, 0x99F3F4F6);
-            infoTextCol = typedArray.getColor(R.styleable.DepthView_dvInfoTextColor, 0xff294058);
+//            infoBgCol = typedArray.getColor(R.styleable.DepthView_dvInfoBgColor, 0x99F3F4F6);
+            infoBgCol = typedArray.getColor(R.styleable.DepthView_dvInfoBgColor, 0x6624256e);
+            infoTextCol = typedArray.getColor(R.styleable.DepthView_dvInfoTextColor, 0xff24256e);
             infoTextSize = typedArray.getInt(R.styleable.DepthView_dvInfoTextSize, 10);
             infoLineCol = typedArray.getColor(R.styleable.DepthView_dvInfoLineCol, 0xff828EA2);
             infoLineWidth = typedArray.getInteger(R.styleable.DepthView_dvInfoLineWidth, 0);
@@ -143,6 +144,7 @@ public class DepthView  extends View{
                 sellList.get(i).setVolume(sellList.get(i).getVolume() + sellList.get(i - 1).getVolume());
             }
         }
+
 
 
 
@@ -218,8 +220,20 @@ public class DepthView  extends View{
         avgOrdinateSpace = depthImgHeight / ordinateNum;
 
 
+        for (int i=0;i<buyList.size();i++){
+            buyList.get(i).setxValue(leftStart+(float) avgWidthPerSize*i);
+            buyList.get(i).setyValue(topStart + (float) ((maxVolume - buyList.get(i).getVolume()) * avgHeightPerVolume));
+        }
 
+//        for (int i=sellList.size()-1;i>0;i--){
+//            sellList.get(i).setxValue(leftStart+(float) avgWidthPerSize*(i+buyList.size()));
+//            sellList.get(i).setyValue(topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
+//        }
 
+        for (int i=0;i<sellList.size();i++){
+            sellList.get(i).setxValue(leftStart+(float) avgWidthPerSize*(i+buyList.size()));
+            sellList.get(i).setyValue(topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
+        }
 
     }
 
@@ -267,11 +281,11 @@ public class DepthView  extends View{
             bgPath.reset();
             for (int i=0;i<buyList.size();i++){
                 if (i == 0) {
-                    linePath.moveTo(leftStart + (float) avgWidthPerSize * i,topStart + (float) ((maxVolume - buyList.get(i).getVolume()) * avgHeightPerVolume));
-                    bgPath.moveTo(leftStart + (float) avgWidthPerSize * i,topStart + (float) ((maxVolume - buyList.get(i).getVolume()) * avgHeightPerVolume));
+                    linePath.moveTo(buyList.get(i).getxValue(),buyList.get(i).getyValue());
+                    bgPath.moveTo(buyList.get(i).getxValue(),buyList.get(i).getyValue());
                 }else{
-                    linePath.lineTo(leftStart + (float) avgWidthPerSize * i,topStart + (float) ((maxVolume - buyList.get(i).getVolume()) * avgHeightPerVolume));
-                    bgPath.lineTo(leftStart + (float) avgWidthPerSize * i,topStart + (float) ((maxVolume - buyList.get(i).getVolume()) * avgHeightPerVolume));
+                    linePath.lineTo(buyList.get(i).getxValue(),buyList.get(i).getyValue());
+                    bgPath.lineTo(buyList.get(i).getxValue(),buyList.get(i).getyValue());
                 }
             }
 
@@ -303,17 +317,17 @@ public class DepthView  extends View{
 
             for (int i=0;i<sellList.size();i++){
                 if (i == 0) {
-                    linePath.moveTo(leftStart + (float) avgWidthPerSize * (i+buyList.size()),topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
-                    bgPath.moveTo(leftStart + (float) avgWidthPerSize * (i+buyList.size()),topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
+                    linePath.moveTo(sellList.get(i).getxValue(),sellList.get(i).getyValue());
+                    bgPath.moveTo(sellList.get(i).getxValue(),sellList.get(i).getyValue());
                 }else{
-                    linePath.lineTo(leftStart + (float) avgWidthPerSize * (i+buyList.size()),topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
-                    bgPath.lineTo(leftStart + (float) avgWidthPerSize * (i+buyList.size()),topStart + (float) ((maxVolume - sellList.get(i).getVolume()) * avgHeightPerVolume));
+                    linePath.lineTo(sellList.get(i).getxValue(),sellList.get(i).getyValue());
+                    bgPath.lineTo(sellList.get(i).getxValue(),sellList.get(i).getyValue());
                 }
             }
 
-            bgPath.lineTo(leftStart + (float) avgWidthPerSize * (buyList.size()+sellList.size()-1), (float) (topStart + depthImgHeight));
+            bgPath.lineTo(sellList.get(sellList.size()-1).getxValue(), (float) (topStart + depthImgHeight));
             if (!sellList.isEmpty() && topStart + (float) ((maxVolume - sellList.get(0).getVolume()) * avgHeightPerVolume)< (float) (topStart + depthImgHeight)) {
-                bgPath.lineTo(leftStart + (float) avgWidthPerSize * (buyList.size()), (float) (topStart + depthImgHeight));
+                bgPath.lineTo(sellList.get(0).getxValue(), (float) (topStart + depthImgHeight));
             }
             bgPath.close();
             fillPaint.setColor(sellBgColor);
@@ -372,29 +386,54 @@ public class DepthView  extends View{
         if (isShowinfos&&clickBean!=null){
             //准线
             strokePaint.setStrokeWidth(1);
-            strokePaint.setTextSize(20);
+            strokePaint.setTextSize(30);
             strokePaint.setColor(sellLineColor);
 
             canvas.drawLine(clickDownX,topStart,clickDownX+2,bottomEnd,strokePaint);
 
 
-            String priceStr="   价格："+setPrecision(clickBean.getPrice(),priceScale);
+            String priceStr="价格：      "+setPrecision(clickBean.getPrice(),priceScale);
             String volume  ="累计交易量："+setPrecision(clickBean.getVolume(),volumeScale);
             strokePaint.setStrokeWidth(1);
-            strokePaint.setTextSize(20);
+            strokePaint.setTextSize(30);
             strokePaint.setColor(infoTextCol);
 
             strokePaint.getTextBounds(priceStr,0,priceStr.length(),textRect);
             float priceStrWidth=textRect.width();
             float priceStrHeight=textRect.height();
 
-            strokePaint.getTextBounds(volume,0,priceStr.length(),textRect);
+            strokePaint.getTextBounds(volume,0,volume.length(),textRect);
             float volumeStrWidth=textRect.width();
             float volumeStrHeight=textRect.height();
 
+            float maxWidth=Math.max(priceStrWidth,volumeStrWidth);
+            float maxHeight=Math.max(priceStrHeight,volumeStrHeight);
 
+            float bgLeft,bgRight,bgBottom,bgTop,priceX,priceY,volumeX,volumeY;
 
+            //根据x坐标判断,绘制的在线的左边还是右边
+            if (clickBean.getxValue()<maxWidth+topStart+60){
+                bgLeft=clickBean.getxValue();
+                bgRight=clickBean.getxValue()+maxWidth+60;
+            }else{
+                bgLeft=clickBean.getxValue()-maxWidth-60;
+                bgRight=clickBean.getxValue();
+            }
 
+            //根据y坐标判断
+            if (topStart+depthImgHeight-clickBean.getyValue()<maxHeight+60){
+                bgTop=clickBean.getyValue()-maxHeight-60;
+                bgBottom=clickBean.getyValue();
+
+            }else{
+                bgBottom=clickBean.getyValue()+maxHeight+60;
+                bgTop=clickBean.getyValue();
+            }
+
+            fillPaint.setColor(infoBgCol);
+            canvas.drawRect(bgLeft,bgTop,bgRight,bgBottom,fillPaint);
+            canvas.drawText(priceStr,bgLeft+20,bgTop+40,strokePaint);
+            canvas.drawText(volume,bgLeft+20,bgTop+45+priceStrHeight,strokePaint);
         }
     }
 
@@ -427,11 +466,11 @@ public class DepthView  extends View{
             }
         }else{
             for (int i=0;i<sellList.size();i++){
-                if (i+1<sellList.size()&&xValue>=(leftStart + (float) avgWidthPerSize * (buyList.size()+i))&&xValue<(leftStart + (float) avgWidthPerSize * (buyList.size()+i))){
-                    clickBean=buyList.get(i);
+                if (i+1<sellList.size()&&xValue>=sellList.get(i).getxValue()&&xValue<sellList.get(i+1).getxValue()){
+                    clickBean=sellList.get(i);
                     break;
-                }else if (i==buyList.size()-1&&xValue>= (leftStart + (float) avgWidthPerSize * buyList.size()+i)){
-                    clickBean=buyList.get(i);
+                }else if (i==sellList.size()-1&&xValue>= sellList.get(i).getxValue()){
+                    clickBean=sellList.get(i);
                     break;
                 }
             }

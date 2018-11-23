@@ -14,7 +14,8 @@ public class DepthBean implements Comparable<DepthBean> {
     private double volume;//委托量
     private int tradeType;
     private String coinName;
-
+    private float xValue;
+    private float yValue;
 
 
     public DepthBean(double price, double volume, int tradeType, String coinName) {
@@ -58,6 +59,21 @@ public class DepthBean implements Comparable<DepthBean> {
         this.tradeType = tradeType;
     }
 
+    public float getxValue() {
+        return xValue;
+    }
+
+    public void setxValue(float xValue) {
+        this.xValue = xValue;
+    }
+
+    public float getyValue() {
+        return yValue;
+    }
+
+    public void setyValue(float yValue) {
+        this.yValue = yValue;
+    }
 
     @Override
     public int compareTo(@NonNull DepthBean o) {
